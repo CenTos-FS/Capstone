@@ -98,7 +98,37 @@ def create_app(test_config=None):
       "total_movies": len(Movies.query.all)
     })                     
 
+  @app.route('/actors/<int:id>', methods=['DELETE'])
+  def delete_actor(id):
+    actor = Actors.query.filter(Actors.id == id).one_or_none() 
+    if actor is None:
+      abort(404)
+    else:
+      actor.delete()
 
+    current_actors = paginate_data(request, Actors.query.all())
+    return jsonify({
+      'success': True,
+      'deleted': id,
+      'actors': current_actors,
+      'total_actors': len(Actors.query.all())
+    })         
+   
+  @app.route('/movies/<int:id>', methods=['DELETE'])
+  def delete_movies(id):
+    movie = Movies.query.filter(Movies.id == id).one_or_none() 
+    if movie is None:
+      abort(404)
+    else:
+      movie.delete()
+
+    current_movies = paginate_data(request, Movies.query.all())
+    return jsonify({
+      'success': True,
+      'deleted': id,
+      'movies': current_movies,
+      'total_movies': len(Movies.query.all())
+    })    
   return app
 
 APP = create_app()
