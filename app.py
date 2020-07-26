@@ -61,8 +61,42 @@ def create_app(test_config=None):
       "total_movies": len(movies)
     })     
 
+  @app.route('/actors', methods=['POST'])
+  def add_actors():
+    data = request.get_json()
+    if ((data.get('name') is None) or
+       (data.get('age') is None) or
+       (data.get('gender') is None)):
+         abort(422)
+    actor = Actors(name = data.get('name'),
+                   age = data.get('age'),
+                   gender = data.get('gender'))
+    actor.insert()
+    current_actors = paginate_data(request, Actors.query.all())
+    return jsonify({
+      'success': True,
+      'created': actor.id,
+      'actors': current_actors,
+      'total_actors': len(Actors.query.all())
+    })                    
+  
+  @app.route('/movies', methods=['POST'])
+  def add_movies():
+    data = request.get_json()
+    if ((data is None) or 
+         (data.get('title') is None)):
+         abort(422)
 
-
+    movie = Movies(title = data.get('title'),
+                    releaseDate = data.get('releaseDate'))
+    movie.insert()
+    current_movies = paginate_data(request, Movies.query.all())
+    return jsonify({
+      "success": True,
+      "created": movie.id,
+      "movies" : current_movies,
+      "total_movies": len(Movies.query.all)
+    })                     
 
 
   return app
