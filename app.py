@@ -29,8 +29,11 @@ def create_app(test_config=None):
     response.headers.add('Access-Control-Allow-Methods','GET,PUT,POST,PATCH,DELETE,OPTIONS')
     return response
 
+  
   @app.route('/actors', methods=['GET'])
   def get_actors():
+    '''Returns list of actors per page 10 with total 
+       number of actors '''
     actors = Actors.query.all()
     
     if len(actors) == 0:
@@ -43,7 +46,21 @@ def create_app(test_config=None):
       "total_actors": len(actors)
     })
 
-    
+  @app.route('/movies', methods=['GET'])
+  def get_movies():
+    '''Returns list of movies per page 10 with 
+       total number of movies'''
+    movies = Movies.query.all()
+    if len(movies)==0:
+      abort(404)
+
+    current_movies = paginate_data(request, movies)
+    return jsonify({
+      "success": True,
+      "movies": current_movies,
+      "total_movies": len(movies)
+    })     
+
 
 
 
