@@ -73,7 +73,7 @@ def create_app(test_config=None):
 
   @app.route('/actors', methods=['POST'])
   @requires_auth('post:actors')
-  def add_actors():
+  def add_actors(jwt):
     data = request.get_json()
     try:
        if ((data.get('name') is None) and
@@ -98,7 +98,7 @@ def create_app(test_config=None):
   
   @app.route('/movies', methods=['POST'])
   @requires_auth("post:movies")
-  def add_movies():
+  def add_movies(jwt):
     data = request.get_json()
     if data.get('title') is None:
         abort(400)
@@ -119,7 +119,7 @@ def create_app(test_config=None):
 
   @app.route('/actors/<int:id>', methods=['DELETE'])
   @requires_auth("delete:actors")
-  def delete_actor(id):
+  def delete_actor(jwt,id):
     actor = Actors.query.filter(Actors.id == id).one_or_none() 
     if actor is None:
         abort(404)
@@ -138,7 +138,7 @@ def create_app(test_config=None):
    
   @app.route('/movies/<int:id>', methods=['DELETE'])
   @requires_auth('delete:movies')
-  def delete_movies(id):
+  def delete_movies(jwt,id):
     movie = Movies.query.filter(Movies.id == id).one_or_none() 
     if movie is None:
         abort(404)
@@ -157,7 +157,7 @@ def create_app(test_config=None):
 
   @app.route('/actors/<int:id>', methods=['PATCH'])
   @requires_auth("patch:actors")
-  def edit_actors(id):
+  def edit_actors(jwt,piid):
     actor = Actors.query.filter(Actors.id == id).one_or_none()
     if actor is None:
         abort(404)
