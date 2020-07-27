@@ -1,8 +1,9 @@
 import os
 from flask import Flask, request, abort, jsonify
 from flask_sqlalchemy import SQLAlchemy
-#from flask_cors import CORS
+from flask_cors import CORS
 from models import setup_db,Movies,Actors
+from auth import AuthError, requires_auth
 
 #Number of actors and movies visible in a page
 DATA_PER_PAGE = 10
@@ -223,6 +224,14 @@ def create_app(test_config=None):
       'error': 422,
       'message': 'Request cannot be processed'
     }),422   
+
+  @app.errorhandler(AuthError)
+  def auth_error(error):
+    return jsonify({
+      'success': False,
+      'error': error.status_code,
+      'message': error.error['description']
+    })  
 
   return app  
 
