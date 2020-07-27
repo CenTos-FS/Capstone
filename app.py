@@ -1,7 +1,7 @@
 import os
 from flask import Flask, request, abort, jsonify
 from flask_sqlalchemy import SQLAlchemy
-from flask_cors import CORS
+#from flask_cors import CORS
 from models import setup_db,Movies,Actors
 
 #Number of actors and movies visible in a page
@@ -34,20 +34,21 @@ def create_app(test_config=None):
   def get_actors():
     '''Returns list of actors per page 10 with total 
        number of actors '''
-    actors = Actors.query.all()
-    
+    actors = Actors.query.all() 
     if len(actors) == 0:
-      abort(404)
+        abort(404)
 
     current_actors = paginate_data(request, actors)
     if len(current_actors) == 0:
-      abort(404)
+        abort(404)
 
     return jsonify({
-      "success": True,
-      "actors": current_actors,
-      "total_actors": len(actors)
-    })
+        "success": True,
+        "actors": current_actors,
+        "total_actors": len(actors)
+      })
+      
+    
 
   @app.route('/movies', methods=['GET'])
   def get_movies():
@@ -55,126 +56,149 @@ def create_app(test_config=None):
        total number of movies'''
     movies = Movies.query.all()
     if len(movies)==0:
-      abort(404)
+        abort(404)
 
     current_movies = paginate_data(request, movies)
     if len(current_movies) == 0:
-      abort(404)
-      
+        abort(404)
+
     return jsonify({
-      "success": True,
-      "movies": current_movies,
-      "total_movies": len(movies)
-    })     
+        "success": True,
+        "movies": current_movies,
+        "total_movies": len(movies)
+      })    
+      
+ 
 
   @app.route('/actors', methods=['POST'])
   def add_actors():
     data = request.get_json()
-    if ((data.get('name') is None) and
-       (data.get('age') is None) and
-       (data.get('gender') is None)):
-         abort(400)
-    actor = Actors(name = data.get('name'),
-                   age = data.get('age'),
-                   gender = data.get('gender'))
-    actor.insert()
-    current_actors = paginate_data(request, Actors.query.all())
-    return jsonify({
-      'success': True,
-      'created': actor.id,
-      'actors': current_actors,
-      'total_actors': len(Actors.query.all())
-    })                    
+    try:
+       if ((data.get('name') is None) and
+          (data.get('age') is None) and
+          (data.get('gender') is None)):
+            abort(400)
+       actor = Actors(name = data.get('name'),
+                       age = data.get('age'),
+                       gender = data.get('gender'))
+       actor.insert()
+       current_actors = paginate_data(request, Actors.query.all())
+       return jsonify({
+          'success': True,
+          'created': actor.id,
+          'actors': current_actors,
+          'total_actors': len(Actors.query.all())
+        })             
+      
+    except:
+       abort(422)
+              
   
   @app.route('/movies', methods=['POST'])
   def add_movies():
     data = request.get_json()
-    if ((data is None) and 
-         (data.get('title') is None)):
-         abort(400)
+    if data.get('title') is None:
+        abort(400)
 
     movie = Movies(title = data.get('title'),
-                    releaseDate = data.get('releaseDate'))
+                        releaseDate = data.get('releaseDate'))
     movie.insert()
     current_movies = paginate_data(request, Movies.query.all())
     return jsonify({
-      "success": True,
-      "created": movie.id,
-      "movies" : current_movies,
-      "total_movies": len(Movies.query.all)
-    })                     
+          "success": True,
+          "created": movie.id,
+          "movies" : current_movies,
+          "total_movies": len(Movies.query.all())
+       })        
+        
+
+                
 
   @app.route('/actors/<int:id>', methods=['DELETE'])
   def delete_actor(id):
     actor = Actors.query.filter(Actors.id == id).one_or_none() 
     if actor is None:
-      abort(404)
+        abort(404)
     else:
-      actor.delete()
+        actor.delete()
 
     current_actors = paginate_data(request, Actors.query.all())
     return jsonify({
-      'success': True,
-      'deleted': id,
-      'actors': current_actors,
-      'total_actors': len(Actors.query.all())
-    })         
+          'success': True,
+          'deleted': id,
+          'actors': current_actors,
+          'total_actors': len(Actors.query.all())
+        })    
+        
+          
    
   @app.route('/movies/<int:id>', methods=['DELETE'])
   def delete_movies(id):
     movie = Movies.query.filter(Movies.id == id).one_or_none() 
     if movie is None:
-      abort(404)
+        abort(404)
     else:
-      movie.delete()
+        movie.delete()
 
     current_movies = paginate_data(request, Movies.query.all())
     return jsonify({
-      'success': True,
-      'deleted': id,
-      'movies': current_movies,
-      'total_movies': len(Movies.query.all())
-    })    
-  return app
+          'success': True,
+          'deleted': id,
+          'movies': current_movies,
+          'total_movies': len(Movies.query.all())
+        })           
+
+    
 
   @app.route('/actors/<int:id>', methods=['PATCH'])
   def edit_actors(id):
     actor = Actors.query.filter(Actors.id == id).one_or_none()
     if actor is None:
-      abort(404)
+        abort(404)
 
     data = request.get_json()
     if data is None:
-      abort(400)
+        abort(400)
 
-    actor.name = data.get('name', actor.name)
-    actor.age = data.get('age', actor.age)
-    actor.gender = data.get('gender', actor.gender)
-
-    db.session.update(actor)
-    db.session.commit()
+    name = data.get('name', actor.name)
+    age = data.get('age', actor.age)
+    gender = data.get('gender', actor.gender)
+    actor.name = name
+    actor.age = age
+    actor.gender = gender
+    actor.update()
 
     return jsonify({
-      'success': True,
-      'updated': actor.id,
-      'actor': [actor.format()]
-    })    
+          'success': True,
+          'updated': actor.id,
+          'actor': [actor.format()]
+        })   
+  
+       
 
   @app.route('/movies/<int:id>', methods=['PATCH'])
   def edit_movies(id):
     movie = Movies.query.filter(Movies.id == id).one_or_none()
+  
     if movie is None:
-      abort(404)
+        abort(404)
 
     data = request.get_json()
     if data is None:
-      abort(400)
+        abort(400)
 
     movie.title = data.get('title', movie.title)
     movie.releaseDate = data.get('releaseDate', movie.releaseDate)
 
-    db.session.update(movie)
-    db.session.commit()      
+    movie.update()   
+
+    return jsonify({
+          'success': True,
+          'updated': movie.id,
+          'movie': [movie.format()]
+        }) 
+         
+ 
 
   @app.errorhandler(404)
   def non_found(error):
@@ -182,7 +206,7 @@ def create_app(test_config=None):
       'success': False,
       'error': 404,
       'message': 'Resource not found'
-    }, 404)     
+    }),404    
 
   @app.errorhandler(400)
   def bad_request(error):
@@ -190,7 +214,7 @@ def create_app(test_config=None):
       'success': False,
       'error': 400,
       'message': 'Bad request'
-    }, 400)
+    }),400
 
   @app.errorhandler(422)
   def unprocessable(error):
@@ -198,7 +222,9 @@ def create_app(test_config=None):
       'success': False,
       'error': 422,
       'message': 'Request cannot be processed'
-    }, 422)   
+    }),422   
+
+  return app  
 
 APP = create_app()
 
