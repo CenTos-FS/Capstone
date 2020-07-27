@@ -40,6 +40,9 @@ def create_app(test_config=None):
       abort(404)
 
     current_actors = paginate_data(request, actors)
+    if len(current_actors) == 0:
+      abort(404)
+
     return jsonify({
       "success": True,
       "actors": current_actors,
@@ -55,6 +58,9 @@ def create_app(test_config=None):
       abort(404)
 
     current_movies = paginate_data(request, movies)
+    if len(current_movies) == 0:
+      abort(404)
+      
     return jsonify({
       "success": True,
       "movies": current_movies,
