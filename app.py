@@ -64,8 +64,8 @@ def create_app(test_config=None):
   @app.route('/actors', methods=['POST'])
   def add_actors():
     data = request.get_json()
-    if ((data.get('name') is None) or
-       (data.get('age') is None) or
+    if ((data.get('name') is None) and
+       (data.get('age') is None) and
        (data.get('gender') is None)):
          abort(422)
     actor = Actors(name = data.get('name'),
@@ -83,7 +83,7 @@ def create_app(test_config=None):
   @app.route('/movies', methods=['POST'])
   def add_movies():
     data = request.get_json()
-    if ((data is None) or 
+    if ((data is None) and 
          (data.get('title') is None)):
          abort(422)
 
@@ -130,6 +130,45 @@ def create_app(test_config=None):
       'total_movies': len(Movies.query.all())
     })    
   return app
+
+  @app.route('/actors/<int:id>', methods=['PATCH'])
+  def edit_actors(id):
+    actor = Actors.query.filter(Actors.id == id).one_or_none()
+    if actor is None:
+      abort(404)
+
+    data = request.get_json()
+    if data is None:
+      abort(422)
+
+    actor.name = data.get('name', actor.name)
+    actor.age = data.get('age', actor.age)
+    actor.gender = data.get('gender', actor.gender)
+
+    db.session.update(actor)
+    db.session.commit()
+
+    return jsonify({
+      'success': True,
+      'updated': actor.id,
+      'actor': [actor.format()]
+    })    
+
+  @app.route('/movies/<int:id>', methods=['PATCH'])
+  def edit_movies(id):
+    movie = Movies.query.filter(Movies.id == id).one_or_none()
+    if movie is None:
+      abort(404)
+
+    data = request.get_json()
+    if data is None:
+      abort(422)
+
+    movie.title = data.get('title', movie.title)
+    movie.releaseDate = data.get('releaseDate', movie.releaseDate)
+
+    db.session.update(movie)
+    db.session.commit()         
 
 APP = create_app()
 
