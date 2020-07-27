@@ -54,4 +54,28 @@ class CapstoneTestCases(unittest.TestCase):
 
         self.assertEqual(response.status_code, 404)
         self.assertEqual(data['success'], False)
-        self.assertEqual(data['message'], 'Resource not found')    
+        self.assertEqual(data['message'], 'Resource not found')  
+
+    def test_add_actor(self):
+        actor = {
+            'name': 'Kizzi',
+            'age': 29,
+            'gender': 'Female'
+        }      
+        response = self.client().post('/actors', json = actor)
+        data = json.loads(response.data)
+        self.assertEquals(response.status_code, 200)
+        self.assertEquals(data['success'], True)
+        self.assertTrue(data['created'])
+        self.assertTrue(data['actors'])
+
+    def test_add_actor_400(self):
+        actor = {
+            'name': 'Farhan',
+            'gender': 'Male'
+        }    
+        response = self.client().post('/actors', json = actor)
+        data = json.loads(response.data)
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(data['success'], False)
+        self.assertEqual(data['message'], 'Bad request')
