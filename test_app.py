@@ -28,7 +28,7 @@ class CapstoneTestCases(unittest.TestCase):
         response = self.client().get('/actors')
         data = json.loads(response.data)
 
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
         self.assertEqual(data['success'], True)
         self.assertTrue(data['actors'])
 
@@ -44,7 +44,7 @@ class CapstoneTestCases(unittest.TestCase):
         response = self.client().get('/movies')
         data = json.loads(response.data)
 
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
         self.assertEqual(data['success'], True)
         self.assertTrue(data['movies'])
 
@@ -64,8 +64,8 @@ class CapstoneTestCases(unittest.TestCase):
         }      
         response = self.client().post('/actors', json = actor)
         data = json.loads(response.data)
-        self.assertEquals(response.status_code, 200)
-        self.assertEquals(data['success'], True)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(data['success'], True)
         self.assertTrue(data['created'])
         self.assertTrue(data['actors'])
 
@@ -87,8 +87,8 @@ class CapstoneTestCases(unittest.TestCase):
         }      
         response = self.client().post('/movies', json = movie)
         data = json.loads(response.data)
-        self.assertEquals(response.status_code, 200)
-        self.assertEquals(data['success'], True)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(data['success'], True)
         self.assertTrue(data['created'])
         self.assertTrue(data['movies'])
 
@@ -100,4 +100,42 @@ class CapstoneTestCases(unittest.TestCase):
         data = json.loads(response.data)
         self.assertEqual(response.status_code, 400)
         self.assertEqual(data['success'], False)
-        self.assertEqual(data['message'], 'Bad request')    
+        self.assertEqual(data['message'], 'Bad request')  
+
+    def test_delete_actor(self):
+        actor = Actors.query.order_by(Actors.id.desc()).first()
+        id = actor.id 
+        response = self.client().delete('/actors/'+id)
+        data = json.loads(response.data)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(data['success'], True)
+        self.assertTrue(data['deleted'])
+
+    def test_delete_actor_404(self):
+        id = 1000
+        response = self.client().delete('/actors/'+id)
+        data = json.loads(response.data)
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(data['success'], False)
+        self.assertTrue(data['deleted']) 
+        self.assertEqual(data['message'], 'Resource not found')
+
+    def test_delete_movie(self):
+        movie = Movies.query.order_by(Actors.id.desc()).first()
+        id = movie.id 
+        response = self.client().delete('/movies/'+id)
+        data = json.loads(response.data)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(data['success'], True)
+        self.assertTrue(data['deleted'])
+
+    def test_delete_movie_404(self):
+        id = 1000
+        response = self.client().delete('/movies/'+id)
+        data = json.loads(response.data)
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(data['success'], False)
+        self.assertTrue(data['deleted']) 
+        self.assertEqual(data['message'], 'Resource not found')           
+
+
