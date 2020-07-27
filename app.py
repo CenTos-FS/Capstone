@@ -67,7 +67,7 @@ def create_app(test_config=None):
     if ((data.get('name') is None) and
        (data.get('age') is None) and
        (data.get('gender') is None)):
-         abort(422)
+         abort(400)
     actor = Actors(name = data.get('name'),
                    age = data.get('age'),
                    gender = data.get('gender'))
@@ -85,7 +85,7 @@ def create_app(test_config=None):
     data = request.get_json()
     if ((data is None) and 
          (data.get('title') is None)):
-         abort(422)
+         abort(400)
 
     movie = Movies(title = data.get('title'),
                     releaseDate = data.get('releaseDate'))
@@ -139,7 +139,7 @@ def create_app(test_config=None):
 
     data = request.get_json()
     if data is None:
-      abort(422)
+      abort(400)
 
     actor.name = data.get('name', actor.name)
     actor.age = data.get('age', actor.age)
@@ -162,13 +162,37 @@ def create_app(test_config=None):
 
     data = request.get_json()
     if data is None:
-      abort(422)
+      abort(400)
 
     movie.title = data.get('title', movie.title)
     movie.releaseDate = data.get('releaseDate', movie.releaseDate)
 
     db.session.update(movie)
-    db.session.commit()         
+    db.session.commit()      
+
+  @app.errorhandler(404)
+  def non_found(error):
+    return jsonify({
+      'success': False,
+      'error': 404,
+      'message': 'Resource not found'
+    }, 404)     
+
+  @app.errorhandler(400)
+  def bad_request(error):
+    return jsonify({
+      'success': False,
+      'error': 400,
+      'message': 'Bad request'
+    }, 400)
+
+  @app.errorhandler(422)
+  def unprocessable(error):
+    return jsonify({
+      'success': False,
+      'error': 422,
+      'message': 'Request cannot be processed'
+    }, 422)   
 
 APP = create_app()
 
