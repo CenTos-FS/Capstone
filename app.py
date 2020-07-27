@@ -72,6 +72,7 @@ def create_app(test_config=None):
  
 
   @app.route('/actors', methods=['POST'])
+  @requires_auth('post:actors')
   def add_actors():
     data = request.get_json()
     try:
@@ -96,6 +97,7 @@ def create_app(test_config=None):
               
   
   @app.route('/movies', methods=['POST'])
+  @requires_auth("post:movies")
   def add_movies():
     data = request.get_json()
     if data.get('title') is None:
@@ -116,6 +118,7 @@ def create_app(test_config=None):
                 
 
   @app.route('/actors/<int:id>', methods=['DELETE'])
+  @requires_auth("delete:actors")
   def delete_actor(id):
     actor = Actors.query.filter(Actors.id == id).one_or_none() 
     if actor is None:
@@ -134,6 +137,7 @@ def create_app(test_config=None):
           
    
   @app.route('/movies/<int:id>', methods=['DELETE'])
+  @requires_auth('delete:movies')
   def delete_movies(id):
     movie = Movies.query.filter(Movies.id == id).one_or_none() 
     if movie is None:
@@ -152,6 +156,7 @@ def create_app(test_config=None):
     
 
   @app.route('/actors/<int:id>', methods=['PATCH'])
+  @requires_auth("patch:actors")
   def edit_actors(id):
     actor = Actors.query.filter(Actors.id == id).one_or_none()
     if actor is None:
@@ -178,6 +183,7 @@ def create_app(test_config=None):
        
 
   @app.route('/movies/<int:id>', methods=['PATCH'])
+  @requires_auth('patch:movies')
   def edit_movies(id):
     movie = Movies.query.filter(Movies.id == id).one_or_none()
   
