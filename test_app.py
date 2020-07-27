@@ -79,3 +79,25 @@ class CapstoneTestCases(unittest.TestCase):
         self.assertEqual(response.status_code, 400)
         self.assertEqual(data['success'], False)
         self.assertEqual(data['message'], 'Bad request')
+
+    def test_add_movie(self):
+        movie = {
+            'title': 'Dil Bechara',
+            'releaseDate': date.today()
+        }      
+        response = self.client().post('/movies', json = movie)
+        data = json.loads(response.data)
+        self.assertEquals(response.status_code, 200)
+        self.assertEquals(data['success'], True)
+        self.assertTrue(data['created'])
+        self.assertTrue(data['movies'])
+
+    def test_add_movie_400(self):
+        movie = {
+            'releaseDate': date.today()
+        }    
+        response = self.client().post('/movies', json = movie)
+        data = json.loads(response.data)
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(data['success'], False)
+        self.assertEqual(data['message'], 'Bad request')    
